@@ -4,7 +4,7 @@ A simple container that crash 💥 after a set amount of time ⏰
 
 ## Usage
 
-```
+```bash
 $ docker build -t crashlooper .
 $ docker run --rm -it crashlooper --help
 Usage:
@@ -18,4 +18,10 @@ Flags:
       --memory-increment-interval duration   crashlooper memory usage increment interval (default 1s)
       --memory-target string                 crashlooper memory usage target
       --port string                          Server bind port (default "3000")
+```
+
+## Example
+
+```bash
+docker run --rm -it crashlooper --crash-after 10s
 ```
