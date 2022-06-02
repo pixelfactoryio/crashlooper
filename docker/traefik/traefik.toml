@@ -1,0 +1,23 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = false
+
+[log]
+  level = "DEBUG"
+
+[api]
+  dashboard = true
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+
+[providers]
+  [providers.docker]
+    watch = true
+    exposedByDefault = true
+    defaultRule = "Host(`{{ trimSuffix \"-crashlooper\" .Name }}.dev.local`)"
+
+  [providers.file]
+    watch = true
+    filename = "/etc/traefik/dynamic_conf.toml"

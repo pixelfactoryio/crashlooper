@@ -1,0 +1,47 @@
+version: "3.7"
+
+networks:
+  default:
+    external: false
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus.yml
+    entrypoint:
+      - /bin/prometheus
+      - --config.file=/etc/prometheus.yml
+  
+  cadvisor:
+    image: pixelfactory/cadvisor:latest # apple m1 compatible image
+    # image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    # platform: linux/amd64
+    volumes:
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+
+  crashlooper:
+    image: crashlooper
+    build:
+      context: "."
+      dockerfile: Dockerfile
+    environment:
+      - CRASHLOOPER_LOG_LEVEL=debug
+      - CRASHLOOPER_MEMORY_TARGET=1GiB
+      - CRASHLOOPER_MEMORY_INCREMENT=100MiB
+      - CRASHLOOPER_MEMORY_INCREMENT_INTERVAL=1m
+      - CRASHLOOPER_CRASH_AFTER=5m

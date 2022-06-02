@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crashlooper
+  namespace: crashlooper
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crashlooper
+  template:
+    metadata:
+      labels:
+        app: crashlooper
+    spec:
+      containers:
+        - name: crashlooper
+          image: pixelfactory/crashlooper:beta
+          args: ["--crash-after", "20s"]
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: 800m
+              memory: 30Mi
+            requests:
+              memory: 16Mi

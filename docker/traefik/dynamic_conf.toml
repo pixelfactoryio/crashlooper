@@ -1,0 +1,6 @@
+[http]
+  [http.routers]
+    [http.routers.traefik-dashboard]
+      rule = "Host(`traefik.dev.local`)"
+      entrypoints = ["http"]
+      service = "api@internal"
