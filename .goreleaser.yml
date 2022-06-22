@@ -1,0 +1,111 @@
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X go.pixelfactory.io/pkg/version.REVISION={{ .ShortCommit }}
+      - -X go.pixelfactory.io/pkg/version.BUILDDATE={{ .CommitDate }}
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - Merge pull request
+      - Merge branch
+      - go mod tidy
+
+nfpms:
+  - file_name_template: "{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    homepage: https://github.com/pixelfactoryio/crashlooper
+    description: |-
+      A simple container that crash 💥 after a set amount of time ⏰.
+    maintainer: Amine Benseddik <amine@pixelfactory.io>
+    license: MIT
+    vendor: pixelfactory.io
+    formats:
+      - apk
+      - deb
+      - rpm
+
+dockers:
+  - image_templates:
+      - "pixelfactory/crashlooper:{{ .Tag }}-amd64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "pixelfactory/crashlooper:{{ .Tag }}-arm64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+docker_manifests:
+  - name_template: "pixelfactory/crashlooper:{{ .Tag }}"
+    image_templates:
+      - "pixelfactory/crashlooper:{{ .Tag }}-amd64"
+      - "pixelfactory/crashlooper:{{ .Tag }}-arm64"
+  - name_template: "pixelfactory/crashlooper:latest"
+    image_templates:
+      - "pixelfactory/crashlooper:{{ .Tag }}-amd64"
+      - "pixelfactory/crashlooper:{{ .Tag }}-arm64"
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+
+brews:
+  - tap:
+      owner: pixelfactoryio
+      name: homebrew-tools
+    commit_author:
+      name: amine7536
+      email: amine@pixelfactory.io
+    homepage: https://github.com/pixelfactoryio/crashlooper
+    description: "A simple container that crash 💥 after a set amount of time ⏰."
+    license: "MIT"
+    skip_upload: auto
