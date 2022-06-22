@@ -10,6 +10,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	go.pixelfactory.io/pkg/observability/log v1.2.0
 	go.pixelfactory.io/pkg/server v0.1.0
+	go.pixelfactory.io/pkg/version v0.1.0
 )
 
 require (

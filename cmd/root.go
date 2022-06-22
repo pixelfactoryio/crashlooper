@@ -11,6 +11,7 @@ import (
 	"go.pixelfactory.io/pkg/observability/log"
 	"go.pixelfactory.io/pkg/observability/log/fields"
 	"go.pixelfactory.io/pkg/server"
+	"go.pixelfactory.io/pkg/version"
 
 	"github.com/pixelfactoryio/crashlooper/internal/api"
 	"github.com/pixelfactoryio/crashlooper/internal/services/crash"
@@ -18,7 +19,7 @@ import (
 )
 
 func initConfig() {
-	viper.Set("revision", "")
+	viper.Set("revision", version.REVISION)
 	viper.SetEnvPrefix("CRASHLOOPER")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
@@ -84,7 +85,7 @@ func start(c *cobra.Command, args []string) error {
 		log.WithLevel(viper.GetString("log-level")),
 	)
 
-	logger = logger.With(fields.Service("crashlooper", ""))
+	logger = logger.With(fields.Service("crashlooper", viper.GetString("revision")))
 
 	router := api.NewRouter(logger)
 
