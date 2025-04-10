@@ -5,4 +5,4 @@ COPY crashlooper_*.apk /tmp/
 RUN apk add --allow-untrusted /tmp/crashlooper_*.apk \
   && rm -fr /tmp/crashlooper_*.apk
 
-ENTRYPOINT ["/usr/local/bin/crashlooper"]
+ENTRYPOINT ["/usr/bin/crashlooper"]
