@@ -29,8 +29,8 @@ jobs:
         id: version
         run: |
           # Only consider semantic version tags (v*), ignore pr-* and sha-* tags
-          CURRENT_TAG=$(svu current --pattern="v*" || echo "v0.0.0")
-          NEXT_TAG=$(svu next --pattern="v*" || echo "")
+          CURRENT_TAG=$(svu current --prefix="v" || echo "v0.0.0")
+          NEXT_TAG=$(svu next --prefix="v" || echo "")
 
           echo "current_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
           echo "next_tag=${NEXT_TAG}" >> $GITHUB_OUTPUT
