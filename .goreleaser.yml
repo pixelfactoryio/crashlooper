@@ -3,13 +3,6 @@ version: 2
 env:
   - GO111MODULE=on
 
-release:
-  # Disable GitHub releases for snapshot builds (PRs and main branch)
-  # Only create releases for actual version tags
-  disable: '{{ if .IsSnapshot }}true{{ else }}false{{ end }}'
-  draft: false
-  prerelease: auto
-
 before:
   hooks:
     - go mod tidy

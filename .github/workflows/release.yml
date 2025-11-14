@@ -37,14 +37,14 @@ jobs:
             echo "args=release --clean" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GORELEASER_GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            # PR build - snapshot mode, Docker only, no GitHub release
+            # PR build - Docker only, skip GitHub release publishing
             echo "tag=pr-${{ github.event.pull_request.number }}-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-            echo "args=release --snapshot --clean --skip=validate" >> $GITHUB_OUTPUT
+            echo "args=release --clean --skip=publish --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           else
-            # Main branch build - snapshot mode, Docker only, no GitHub release
+            # Main branch build - Docker only, skip GitHub release publishing
             echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-            echo "args=release --snapshot --clean --skip=validate" >> $GITHUB_OUTPUT
+            echo "args=release --clean --skip=publish --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           fi
 
