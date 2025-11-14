@@ -1,0 +1,93 @@
+name: Automatic Tagging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auto-tag:
+    runs-on: ubuntu-22.04
+    # Only run if the push is not from a tag creation
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install svu
+        run: |
+          SVU_VERSION="2.0.0"
+          wget -q "https://github.com/caarlos0/svu/releases/download/v${SVU_VERSION}/svu_${SVU_VERSION}_linux_amd64.tar.gz"
+          tar -xzf "svu_${SVU_VERSION}_linux_amd64.tar.gz"
+          sudo mv svu /usr/local/bin/
+          rm "svu_${SVU_VERSION}_linux_amd64.tar.gz"
+
+      - name: Determine version
+        id: version
+        run: |
+          CURRENT_TAG=$(svu current || echo "v0.0.0")
+          NEXT_TAG=$(svu next || echo "")
+
+          echo "current_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
+          echo "next_tag=${NEXT_TAG}" >> $GITHUB_OUTPUT
+
+          if [ -z "$NEXT_TAG" ]; then
+            echo "should_tag=false" >> $GITHUB_OUTPUT
+            echo "No version bump needed"
+          elif [ "$CURRENT_TAG" = "$NEXT_TAG" ]; then
+            echo "should_tag=false" >> $GITHUB_OUTPUT
+            echo "No changes detected that warrant a version bump"
+          else
+            echo "should_tag=true" >> $GITHUB_OUTPUT
+            echo "Will create new tag: ${NEXT_TAG} (current: ${CURRENT_TAG})"
+          fi
+
+      - name: Get commit messages since last tag
+        if: steps.version.outputs.should_tag == 'true'
+        id: commits
+        run: |
+          CURRENT_TAG="${{ steps.version.outputs.current_tag }}"
+          if [ "$CURRENT_TAG" = "v0.0.0" ]; then
+            # First tag ever, get all commits
+            COMMITS=$(git log --pretty=format:"- %s" | head -20)
+          else
+            # Get commits since last tag
+            COMMITS=$(git log ${CURRENT_TAG}..HEAD --pretty=format:"- %s")
+          fi
+
+          # Store commits in a file to handle multiline
+          echo "$COMMITS" > /tmp/commits.txt
+          echo "commits_file=/tmp/commits.txt" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        if: steps.version.outputs.should_tag == 'true'
+        run: |
+          NEXT_TAG="${{ steps.version.outputs.next_tag }}"
+          COMMITS=$(cat ${{ steps.commits.outputs.commits_file }})
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create annotated tag with commit messages
+          git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG" -m "" -m "Changes:" -m "$COMMITS"
+          git push origin "$NEXT_TAG"
+
+          echo "✅ Created and pushed tag: $NEXT_TAG"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Auto-Tagging Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Current tag:** ${{ steps.version.outputs.current_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next tag:** ${{ steps.version.outputs.next_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Should tag:** ${{ steps.version.outputs.should_tag }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.version.outputs.should_tag }}" = "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Changes included:" >> $GITHUB_STEP_SUMMARY
+            cat ${{ steps.commits.outputs.commits_file }} >> $GITHUB_STEP_SUMMARY || true
+          fi
