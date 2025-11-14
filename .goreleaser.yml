@@ -3,6 +3,13 @@ version: 2
 env:
   - GO111MODULE=on
 
+release:
+  # Only create GitHub releases for semantic version tags (v*)
+  # Controlled via GORELEASER_DISABLE_RELEASE environment variable
+  disable: '{{ .Env.GORELEASER_DISABLE_RELEASE }}'
+  draft: false
+  prerelease: auto
+
 before:
   hooks:
     - go mod tidy
