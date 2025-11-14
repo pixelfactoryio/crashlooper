@@ -32,19 +32,19 @@ jobs:
         id: config
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            # Actual release
+            # Actual release - full release with GitHub release
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
             echo "args=release --clean" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GORELEASER_GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            # PR build
+            # PR build - snapshot mode, Docker only, no GitHub release
             echo "tag=pr-${{ github.event.pull_request.number }}-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-            echo "args=release --clean --skip=validate" >> $GITHUB_OUTPUT
+            echo "args=release --snapshot --clean --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           else
-            # Main branch build
+            # Main branch build - snapshot mode, Docker only, no GitHub release
             echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-            echo "args=release --clean --skip=validate" >> $GITHUB_OUTPUT
+            echo "args=release --snapshot --clean --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           fi
 
