@@ -36,16 +36,19 @@ jobs:
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
             echo "args=release --clean" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GORELEASER_GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "disable_release=false" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            # PR build - Docker images only, GitHub release disabled in .goreleaser.yml
+            # PR build - Docker images only, GitHub release disabled
             echo "tag=pr-${{ github.event.pull_request.number }}-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
             echo "args=release --clean --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "disable_release=true" >> $GITHUB_OUTPUT
           else
-            # Main branch build - Docker images only, GitHub release disabled in .goreleaser.yml
+            # Main branch build - Docker images only, GitHub release disabled
             echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
             echo "args=release --clean --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "disable_release=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Run GoReleaser
@@ -56,3 +59,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.config.outputs.github_token }}
           GORELEASER_CURRENT_TAG: ${{ steps.config.outputs.tag }}
+          GORELEASER_DISABLE_RELEASE: ${{ steps.config.outputs.disable_release }}
