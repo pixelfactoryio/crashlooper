@@ -37,7 +37,37 @@ Available tags:
 - `sha-<sha>` - Main branch builds (e.g., `sha-abc1234`)
 - All builds include `-amd64` and `-arm64` variants
 
+## Contributing
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages and [Semantic Versioning](https://semver.org/) for releases. See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+### Quick Start for Contributors
+
+```bash
+# Check current version
+make current-version
+
+# Check what version will be created based on commits
+make next-version
+
+# Run tests
+make test
+```
+
 ## Development and Releases
+
+### Automated Versioning and Tagging
+
+This project uses automatic semantic versioning based on commit messages:
+
+- Commits are analyzed using [Conventional Commits](https://www.conventionalcommits.org/)
+- When code is merged to `main`, a GitHub Action automatically creates appropriate version tags
+- Tags trigger the release workflow to build and publish artifacts
+
+**Commit format determines version bumps:**
+- `fix:` commits → PATCH version (v1.0.0 → v1.0.1)
+- `feat:` commits → MINOR version (v1.0.0 → v1.1.0)
+- `BREAKING CHANGE` or `!` → MAJOR version (v1.0.0 → v2.0.0)
 
 ### Automated Docker Publishing
 
