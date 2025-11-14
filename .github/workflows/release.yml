@@ -35,7 +35,7 @@ jobs:
             # Actual release - full release with GitHub release
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
             echo "args=release --clean" >> $GITHUB_OUTPUT
-            echo "github_token=${{ secrets.GORELEASER_GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
             echo "disable_release=false" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
             # PR build - Docker images only, GitHub release disabled
