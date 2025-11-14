@@ -3,6 +3,13 @@ version: 2
 env:
   - GO111MODULE=on
 
+release:
+  # Only create GitHub releases for semantic version tags (v*)
+  # Disable for pr-* and sha-* tags
+  disable: '{{ if hasPrefix .Tag "v" }}false{{ else }}true{{ end }}'
+  draft: false
+  prerelease: auto
+
 before:
   hooks:
     - go mod tidy
