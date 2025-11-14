@@ -28,6 +28,7 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
+      - -X github.com/pixelfactoryio/crashlooper/cmd.Version={{ .Version }}
       - -X go.pixelfactory.io/pkg/version.REVISION={{ .ShortCommit }}
       - -X go.pixelfactory.io/pkg/version.BUILDDATE={{ .CommitDate }}
 checksum:

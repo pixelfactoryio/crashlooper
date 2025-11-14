@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,11 +19,18 @@ import (
 	"github.com/pixelfactoryio/crashlooper/internal/services/memory"
 )
 
+// Version is set by GoReleaser via ldflags
+var Version = "dev"
+
 func initConfig() {
 	viper.Set("revision", version.REVISION)
 	viper.SetEnvPrefix("CRASHLOOPER")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
+}
+
+func getVersionString() string {
+	return fmt.Sprintf("%s (commit: %s, built: %s)", Version, version.REVISION, version.BUILDDATE)
 }
 
 // NewRootCmd create new rootCmd
@@ -33,6 +41,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE:          start,
+		Version:       getVersionString(),
 	}
 
 	rootCmd.PersistentFlags().String("log-level", "info", "Server log level")
