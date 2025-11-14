@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -25,6 +26,19 @@ func initConfig() {
 	viper.AutomaticEnv()
 }
 
+func getVersionString() string {
+	// Try to use the String() method if available, otherwise construct manually
+	if s := version.String(); s != "" {
+		return s
+	}
+	// Fallback: construct version string manually
+	v := version.VERSION
+	if v == "" {
+		v = "dev"
+	}
+	return fmt.Sprintf("%s (commit: %s, built: %s)", v, version.REVISION, version.BUILDDATE)
+}
+
 // NewRootCmd create new rootCmd
 func NewRootCmd() (*cobra.Command, error) {
 	// rootCmd represents the base command when called without any subcommands
@@ -33,6 +47,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE:          start,
+		Version:       getVersionString(),
 	}
 
 	rootCmd.PersistentFlags().String("log-level", "info", "Server log level")
