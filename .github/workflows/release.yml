@@ -44,7 +44,7 @@ jobs:
           else
             # Main branch build
             echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-            echo "args=release --clean --skip=publish,validate" >> $GITHUB_OUTPUT
+            echo "args=release --clean --skip=validate" >> $GITHUB_OUTPUT
             echo "github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           fi
 
