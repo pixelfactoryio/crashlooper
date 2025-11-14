@@ -213,8 +213,8 @@ func (m *mockLogger) Error(msg string, fields ...zapcore.Field) {
 	m.lastFields = fields
 }
 
-func (m *mockLogger) Info(msg string, fields ...zapcore.Field) {}
-func (m *mockLogger) Warn(msg string, fields ...zapcore.Field) {}
+func (m *mockLogger) Info(msg string, fields ...zapcore.Field)  {}
+func (m *mockLogger) Warn(msg string, fields ...zapcore.Field)  {}
 func (m *mockLogger) Fatal(msg string, fields ...zapcore.Field) {}
 func (m *mockLogger) Panic(msg string, fields ...zapcore.Field) {}
 
