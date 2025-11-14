@@ -23,5 +23,62 @@ Flags:
 ## Example
 
 ```bash
-docker run --rm -it crashlooper --crash-after 10s
+docker run --rm -it pixelfactory/crashlooper:latest --crash-after 10s
 ```
+
+## Docker Images
+
+Pre-built Docker images are available on Docker Hub: `pixelfactory/crashlooper`
+
+Available tags:
+- `latest` - Latest stable release (built from git tags)
+- `v*` - Specific version tags (e.g., `v1.0.0`, `v1.0.0-amd64`, `v1.0.0-arm64`)
+- `pr-<number>-<sha>` - Pull request builds (e.g., `pr-2-abc1234`)
+- `sha-<sha>` - Main branch builds (e.g., `sha-abc1234`)
+- All builds include `-amd64` and `-arm64` variants
+
+## Development and Releases
+
+### Automated Docker Publishing
+
+A single unified workflow (`.github/workflows/release.yml`) automatically builds and publishes Docker images in three scenarios:
+
+1. **Pull request builds** (on pull requests):
+   - Triggered automatically for all pull requests
+   - Images are tagged as `pr-<number>-<short-sha>` (unique per PR commit)
+   - Each commit to a PR creates a new tagged image
+   - Only Docker images are built (no GitHub releases)
+
+2. **Development builds** (on push to main):
+   - Triggered automatically when code is pushed to the `main` branch
+   - Images are tagged as `sha-<short-sha>` (unique per commit)
+   - Only Docker images are built (no GitHub releases)
+
+3. **Release builds** (on git tags):
+   - Triggered when a new version tag is created (e.g., `v1.0.0`)
+   - Images are tagged with the version and `latest`
+   - Full GitHub release is created with binaries and packages
+
+### Creating a New Release
+
+To publish a new release with Docker images:
+
+```bash
+# Create and push a new tag
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+```
+
+This will automatically:
+- Build binaries for multiple platforms
+- Create APK, DEB, and RPM packages
+- Build and push multi-arch Docker images (amd64, arm64)
+- Create a GitHub release with artifacts
+- Update the `latest` Docker tag
+
+### Required GitHub Secrets
+
+The following secrets must be configured in the repository:
+- `DOCKER_USERNAME` - Docker Hub username
+- `DOCKER_TOKEN` - Docker Hub access token or password
+- `GORELEASER_GITHUB_TOKEN` - GitHub token for creating releases
