@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install svu
         run: |
@@ -65,12 +65,17 @@ jobs:
 
       - name: Create and push tag
         if: steps.version.outputs.should_tag == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
         run: |
           NEXT_TAG="${{ steps.version.outputs.next_tag }}"
           COMMITS=$(cat ${{ steps.commits.outputs.commits_file }})
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Configure git to use the PAT for pushing (this will trigger other workflows)
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
 
           # Create annotated tag with commit messages
           git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG" -m "" -m "Changes:" -m "$COMMITS"
